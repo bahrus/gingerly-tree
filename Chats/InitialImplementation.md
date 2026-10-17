@@ -175,3 +175,118 @@ Unit tests can't import a grammar-only extension, so [`test/run.mjs`](../test/ru
 ### For the analyzer, later
 
 My earlier questions 1 (beyond highlighting), 3, 4, 5, 7 and 9 still apply there. Its `package.json` would declare `"extensionDependencies": ["andersonbruceb.gingerly-tree"]` and ship no grammar of its own.
+
+## Bruce's Response III
+
+So far, everything is working beautifully in the tree-demo.html demo page, both locally and on the web.
+
+But both the web vs code and locally, viewing tree.md in preview / formatted mode it doesn't seem to be syntax highlight:
+
+```JS
+import { tree, each } from 'assign-gingerly/DX/tree.js';
+import { paths } from 'assign-gingerly/DX/paths.js';
+
+const p = paths(); // untyped here; see "Typing the paths" below
+
+const map = {
+    launch: tree`
+        <article class="card" aria-label=${p.label}>
+            <h3 class="title">${p.name}</h3>
+            <p>Launched ${p.date} by ${p.rocket}</p>
+            <ul ${each(p.crew, { key: '?.id' })}>
+                <li>${'?.name'}</li>
+            </ul>
+            <button @click=${{ call: 'launch' }}>Launch</button>
+        </article>`,
+};
+```
+
+It does when editing the raw markdown, like I am now.
+
+Any theories how to get the syntax highlighting to work in preview / formatted view?  Did you already indicate that won't work?
+
+
+
+## Claude's Response III
+
+**No, I didn't flag this, and I should have.** I tested the editor's tokenization only. Formatted Markdown is rendered by different code, and **TextMate grammars don't reach most of it**. Here's what I found in your VS Code install. There are two formatted views, and they highlight code differently:
+
+| View | How code blocks are highlighted | Does our grammar apply? |
+|---|---|---|
+| **Markdown Preview** (Ctrl+Shift+V, or the preview icon; also on vscode.dev) | **highlight.js**, inside markdown-it, in a webview (`markdown-language-features`, `highlight: (code, lang) => hljs.highlight(…)`) | **No.** highlight.js knows nothing about TextMate grammars. It colors a tagged template as one string with `${…}` substitutions, so `tree` gets the same treatment as any template literal. |
+| **The new "Markdown Editor"** (*Reopen Editor With… → Markdown Editor*) | VS Code's own TextMate engine. The webview sends each block to the host's `computeFullSyntaxHighlighting(source, languageId)`. The fence name is resolved as a language id or alias, so `JS` → `javascript`. | **It should**, because injections come along with the `javascript` grammar. I can't run that UI from here to confirm. |
+
+**GitHub's own rendering** of `tree.md` is a third renderer, which no VS Code extension can influence.
+
+### Can the Markdown Preview be fixed? Yes, two ways
+
+1. **Preview script and stylesheet (my recommendation).** VS Code lets an extension contribute `markdown.previewScripts` and `markdown.previewStyles`.
+   - They're **plain files that run inside the preview webview**, not extension-host code, so the extension still has no `main`. That should keep it web-compatible and trust-free; I'd verify that on vscode.dev before publishing.
+   - The script would find `<code class="language-js|javascript|ts|…">` blocks, plus `<script>` inside `html` blocks.
+   - In each block it would locate the `` tree`…` ``, `` 🌲`…` `` and `` DX.tree`…` `` templates, matching backticks and `${…}` nesting, and re-render just those regions with a small tokenizer of its own. That's the grammar's rules in about 150 lines of JS.
+   - It would reuse the preview's existing `hljs-tag` / `hljs-name` / `hljs-attr` / `hljs-string` classes, so colors follow the preview's theme, with a few classes of our own for `.prop`, `@event`, `ish` and `?.` paths, styled in the CSS.
+   - It would re-run on the preview's `vscode.markdown.updateContent` event, which fires as you type.
+   - **The cost:** a second implementation of the highlighting rules, alongside the grammar. Both would be tested against the same fixtures.
+2. **A markdown-it plugin** (`extendMarkdownIt`), which wraps the `highlight` function. It needs extension-host code (an `activate`), so it belongs in **Gingerly Tree Analyzer**, not here. It gives no better result than option 1.
+
+### Questions
+
+1. **Which view were you using?**
+   - The **Markdown Preview** fits what you saw, since highlight.js never knew about the grammar.
+   - If it was the new **Markdown Editor**: is the *rest* of the JS block colored there, with only the template plain? If so, that's a gap I'd look into separately. Does a ```` ```javascript ```` fence behave any differently from ```` ```JS ````?
+2. **OK to add option 1 to this package**, as a preview script plus stylesheet, keeping it free of extension-host code?
+
+## Bruce's Response
+
+1.  The Markdown Preview is the place I was noticing it not working. 
+
+2.  Yes, please apply the web safe markdown.previewScripts and styling, if I understood you correctly.
+
+
+
+
+
+## Claude's Implementation Notes II
+
+Done: the Markdown Preview now highlights `` tree`…` `` templates. The package still has **no extension-host code** (no `main`, no `browser`), so it should stay web-compatible. Please confirm that on vscode.dev after publishing: I can't open the preview UI from here.
+
+**Results:**
+- **`npm test`** now runs both suites: grammar 100 / 100, preview 91 / 91.
+- **`vsce package`:** clean, 10 files, 13 KB. I built it into my scratchpad so the published 0.0.1 `.vsix` here wasn't overwritten. The version is still 0.0.1 for `npm version patch` to bump, and the change is under *Unreleased* in the CHANGELOG.
+- **Not yet:** looked at in a real preview. Press F5, open `test/fixtures/preview.md`, then press Ctrl+Shift+V.
+
+### How it works
+
+- **[`preview/gingerly-tree-preview.js`](../preview/gingerly-tree-preview.js)**, contributed as `markdown.previewScripts`, runs inside the preview webview. It:
+  1. finds `<pre><code class="language-…">` blocks:
+     - **JS/TS**: `js`, `javascript`, `jsx`, `mjs`, `cjs`, `ts`, `typescript`, `tsx`, `mts`, `cts`, case-insensitive;
+     - **HTML** (`html`, `htm`, …), where only the `<script>` tags are scanned;
+  2. scans each block's text for `` tree`…` ``, `` 🌲`…` `` and `` DX.tree`…` ``, skipping comments, strings and other template literals, and matching `${…}` nesting;
+  3. replaces just those ranges with spans from its own small tokenizer. It follows the grammar's rules: nested `` ${tree`…`} `` recurse, and `?.` paths are split into root, `?.` and segments. **The block's text is never changed**, only re-wrapped, and the test checks that.
+- **It reuses highlight.js's classes** (`hljs-tag`, `hljs-name`, `hljs-attr`, `hljs-string`, `hljs-comment`, `hljs-title`), so markup follows the preview's light and dark themes.
+- **[`preview/gingerly-tree-preview.css`](../preview/gingerly-tree-preview.css)** (`markdown.previewStyles`) colors the extras in Dark+ / Light+ colors, as in the editor:
+  - `${`/`}`, the `.` and `@` prefixes, entities and `$parent`: blue;
+  - `ish`: purple;
+  - path segments: light blue in dark themes, navy in light ones;
+  - escapes: gold.
+- **Live updates:** while you type, the preview patches the changed blocks back to highlight.js output, then fires `vscode.markdown.updateContent`. The script listens for that event and highlights again. A `data-gingerly-tree` marker keeps it from processing a block twice.
+- **One bonus over the editor:** `mts` and `cts` blocks work in the preview, because the script matches by class name.
+
+### Tests: [`test/preview.mjs`](../test/preview.mjs)
+
+It renders [`test/fixtures/preview.md`](../test/fixtures/preview.md) the way the preview does: markdown-it plus highlight.js, with VS Code's language aliases. It then runs the script in jsdom and checks:
+- every block's text is unchanged;
+- the classes on each mapping construct;
+- negative cases (`` html`…` ``, `` subtree`…` ``, a comment, a string, prose in HTML, a CSS block);
+- a second run changes nothing;
+- after a simulated re-render, the update event highlights the block again.
+
+The new dev dependencies (`markdown-it`, `highlight.js`, `jsdom`) are only for that test. `vsce` leaves dev dependencies out of the package.
+
+### Docs
+
+- **README:** a new section, *In the Markdown Preview*, covering:
+  - why highlighting there needs a script;
+  - how to restyle it: `markdown.styles` with the `.gt-*` classes, since `editor.tokenColorCustomizations` doesn't reach the preview;
+  - that GitHub's own rendering can't be changed by an extension.
+- **CHANGELOG:** an *Unreleased* entry.

@@ -1,0 +1,68 @@
+/*
+ * Colors for tree`…` templates in the Markdown Preview (see gingerly-tree-preview.js).
+ * Markup reuses the preview's highlight.js classes (hljs-tag, hljs-name, hljs-attr, hljs-string,
+ * hljs-comment); these are the extras, matching Dark+ / Light+ in the editor.
+ */
+
+.gt-template {
+	color: var(--vscode-editor-foreground);
+}
+
+/* ${ and } */
+.gt-subst,
+/* the . of .prop and the @ of @event */
+.gt-prefix,
+.gt-entity,
+.gt-path-root {
+	color: #569CD6;
+}
+
+.gt-ish {
+	color: #C586C0;
+}
+
+.gt-escape {
+	color: #D7BA7D;
+}
+
+/* ?. paths inside ${…}: variable-colored, so they stand out from ordinary strings */
+.gt-path-segment {
+	color: #9CDCFE;
+}
+
+.gt-path-accessor {
+	color: #D4D4D4;
+}
+
+/* Light themes (including high-contrast light) */
+
+.vscode-light .gt-subst,
+.vscode-light .gt-prefix,
+.vscode-light .gt-entity,
+.vscode-light .gt-path-root,
+.vscode-high-contrast-light .gt-subst,
+.vscode-high-contrast-light .gt-prefix,
+.vscode-high-contrast-light .gt-entity,
+.vscode-high-contrast-light .gt-path-root {
+	color: #0000FF;
+}
+
+.vscode-light .gt-ish,
+.vscode-high-contrast-light .gt-ish {
+	color: #AF00DB;
+}
+
+.vscode-light .gt-escape,
+.vscode-high-contrast-light .gt-escape {
+	color: #EE0000;
+}
+
+.vscode-light .gt-path-segment,
+.vscode-high-contrast-light .gt-path-segment {
+	color: #001080;
+}
+
+.vscode-light .gt-path-accessor,
+.vscode-high-contrast-light .gt-path-accessor {
+	color: #000000;
+}
