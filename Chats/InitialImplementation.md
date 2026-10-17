@@ -290,3 +290,7 @@ The new dev dependencies (`markdown-it`, `highlight.js`, `jsdom`) are only for t
   - how to restyle it: `markdown.styles` with the `.gt-*` classes, since `editor.tokenColorCustomizations` doesn't reach the preview;
   - that GitHub's own rendering can't be changed by an extension.
 - **CHANGELOG:** an *Unreleased* entry.
+
+## Bruce's Response
+
+Confirmed that preview works now.
