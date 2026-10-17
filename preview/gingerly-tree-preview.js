@@ -395,6 +395,18 @@
         const run = () => highlightAll(document);
         // The preview re-renders changed blocks on each edit, then fires this event
         window.addEventListener('vscode.markdown.updateContent', run);
+        // This script loads async, so it can run before the preview has filled in its content, which
+        // then arrives without that event. So also re-run, once per batch, when code blocks are added.
+        // Blocks already done are skipped, so the re-run our own changes cause does nothing.
+        let queued = false;
+        new MutationObserver(mutations => {
+            if (queued) return;
+            const addsCode = mutations.some(m => [...m.addedNodes].some(n =>
+                n.nodeType === 1 && (n.matches('pre, code') || n.querySelector('pre > code'))));
+            if (!addsCode) return;
+            queued = true;
+            setTimeout(() => { queued = false; run(); }, 0);
+        }).observe(document.documentElement, { childList: true, subtree: true });
         if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
         else run();
     }

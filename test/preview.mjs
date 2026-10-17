@@ -139,5 +139,17 @@ ok(ts.querySelectorAll('.gt-template').length === 0, 'the re-rendered block star
 dom.window.dispatchEvent(new dom.window.CustomEvent('vscode.markdown.updateContent'));
 ok(ts.querySelectorAll('.gt-template').length === 1, 'vscode.markdown.updateContent highlights it again');
 
+// The script can run before the preview fills in its content, which then arrives without the update
+// event (seen in VS Code 1.142, about one load in three): code blocks added later are still highlighted
+{
+    const late = new JSDOM('<!doctype html><html><body class="vscode-dark"><div class="markdown-body"></div></body></html>', { runScripts: 'outside-only' });
+    late.window.eval(script);
+    await new Promise(resolve => setTimeout(resolve, 0));
+    late.window.document.querySelector('.markdown-body').innerHTML = render('preview.md').window.document.querySelector('.markdown-body').innerHTML;
+    await new Promise(resolve => setTimeout(resolve, 10));
+    const found = late.window.document.querySelectorAll('.gt-tag').length;
+    ok(found > 0, 'content added after the script ran is highlighted, with no update event', `got ${found} tags`);
+}
+
 console.log(`\n${passes} passed, ${failures} failed`);
 process.exit(failures ? 1 : 0);
