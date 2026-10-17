@@ -1,0 +1,8 @@
+.vscode/**
+.github/**
+Chats/**
+test/**
+node_modules/**
+*.vsix
+.gitignore
+StepsToPublish.md

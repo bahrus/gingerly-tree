@@ -1,0 +1,163 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Gingerly Tree tagged template",
+	"scopeName": "inline.gingerly-tree",
+	"injectionSelector": "L:source.js -comment -(string -meta.embedded), L:source.js.jsx -comment -(string -meta.embedded), L:source.jsx -comment -(string -meta.embedded), L:source.ts -comment -(string -meta.embedded), L:source.tsx -comment -(string -meta.embedded), L:meta.embedded.block.javascript -comment -(string -meta.embedded), L:meta.embedded.block.typescript -comment -(string -meta.embedded), L:meta.embedded.block.typescriptreact -comment -(string -meta.embedded)",
+	"patterns": [
+		{
+			"include": "#tree-template"
+		}
+	],
+	"repository": {
+		"tree-template": {
+			"name": "meta.template.gingerly-tree",
+			"contentName": "meta.embedded.block.gingerly-tree",
+			"begin": "(?<![\\w$.])(?:(DX)\\s*(\\.)\\s*)?(tree|🌲)\\s*(`)",
+			"beginCaptures": {
+				"1": { "name": "variable.other.object.js" },
+				"2": { "name": "punctuation.accessor.js" },
+				"3": { "name": "entity.name.function.tagged-template.js" },
+				"4": { "name": "string.template.js punctuation.definition.string.template.begin.js" }
+			},
+			"end": "`",
+			"endCaptures": {
+				"0": { "name": "string.template.js punctuation.definition.string.template.end.js" }
+			},
+			"patterns": [
+				{ "include": "#escape" },
+				{ "include": "#substitution" },
+				{ "include": "#comment" },
+				{ "include": "#end-tag" },
+				{ "include": "#start-tag" },
+				{ "include": "#entity" }
+			]
+		},
+		"escape": {
+			"name": "constant.character.escape.js",
+			"match": "\\\\(?:x\\h{2}|u\\h{4}|u\\{\\h+\\}|[0-2][0-7]{0,2}|3[0-6][0-7]?|37[0-7]?|[4-7][0-7]?|.|$)"
+		},
+		"substitution": {
+			"include": "source.ts#template-substitution-element"
+		},
+		"comment": {
+			"name": "comment.block.html",
+			"begin": "<!--",
+			"beginCaptures": {
+				"0": { "name": "punctuation.definition.comment.html" }
+			},
+			"end": "-->",
+			"endCaptures": {
+				"0": { "name": "punctuation.definition.comment.html" }
+			}
+		},
+		"end-tag": {
+			"name": "meta.tag.end.gingerly-tree",
+			"match": "(</)([A-Za-z][\\w:.-]*)\\s*(>)",
+			"captures": {
+				"1": { "name": "punctuation.definition.tag.begin.html" },
+				"2": { "name": "entity.name.tag.html" },
+				"3": { "name": "punctuation.definition.tag.end.html" }
+			}
+		},
+		"start-tag": {
+			"name": "meta.tag.start.gingerly-tree",
+			"begin": "(<)([A-Za-z][\\w:.-]*)(?=[\\s/>`]|\\$\\{|$)",
+			"beginCaptures": {
+				"1": { "name": "punctuation.definition.tag.begin.html" },
+				"2": { "name": "entity.name.tag.html" }
+			},
+			"end": "(/?>)|(?=`)",
+			"endCaptures": {
+				"1": { "name": "punctuation.definition.tag.end.html" }
+			},
+			"patterns": [
+				{ "include": "#escape" },
+				{ "include": "#substitution" },
+				{ "include": "#attribute-value" },
+				{ "include": "#attribute-name" }
+			]
+		},
+		"attribute-name": {
+			"patterns": [
+				{
+					"comment": "@event=${…}: an event binding",
+					"match": "(@)([^\\s\"'<>/=`$]+)",
+					"captures": {
+						"1": { "name": "punctuation.definition.attribute-name.event.gingerly-tree" },
+						"2": { "name": "entity.other.attribute-name.event.gingerly-tree" }
+					}
+				},
+				{
+					"comment": ".prop=${…}: a property",
+					"match": "(\\.)([^\\s\"'<>/=`$]+)",
+					"captures": {
+						"1": { "name": "punctuation.definition.attribute-name.property.gingerly-tree" },
+						"2": { "name": "entity.other.attribute-name.property.gingerly-tree" }
+					}
+				},
+				{
+					"comment": "ish=${Manager}: the itemscope manager header",
+					"match": "(?<![^\\s])ish(?=[\\s=/>`]|$)",
+					"name": "entity.other.attribute-name.ish.gingerly-tree"
+				},
+				{
+					"comment": "name=\"literal\", name=${…}, or a boolean name: an attribute",
+					"match": "[^\\s\"'<>/=`$]+",
+					"name": "entity.other.attribute-name.html"
+				}
+			]
+		},
+		"attribute-value": {
+			"patterns": [
+				{
+					"match": "=",
+					"name": "punctuation.separator.key-value.html"
+				},
+				{
+					"name": "string.quoted.double.html",
+					"begin": "\"",
+					"beginCaptures": {
+						"0": { "name": "punctuation.definition.string.begin.html" }
+					},
+					"end": "\"|(?=`)",
+					"endCaptures": {
+						"0": { "name": "punctuation.definition.string.end.html" }
+					},
+					"patterns": [
+						{ "include": "#escape" },
+						{ "include": "#substitution" },
+						{ "include": "#entity" }
+					]
+				},
+				{
+					"name": "string.quoted.single.html",
+					"begin": "'",
+					"beginCaptures": {
+						"0": { "name": "punctuation.definition.string.begin.html" }
+					},
+					"end": "'|(?=`)",
+					"endCaptures": {
+						"0": { "name": "punctuation.definition.string.end.html" }
+					},
+					"patterns": [
+						{ "include": "#escape" },
+						{ "include": "#substitution" },
+						{ "include": "#entity" }
+					]
+				},
+				{
+					"match": "(?<==)[^\\s\"'=<>`$]+",
+					"name": "string.unquoted.html"
+				}
+			]
+		},
+		"entity": {
+			"name": "constant.character.entity.html",
+			"match": "(&)(#\\d+|#[xX]\\h+|[A-Za-z][A-Za-z0-9]*)(;)",
+			"captures": {
+				"1": { "name": "punctuation.definition.entity.html" },
+				"3": { "name": "punctuation.definition.entity.html" }
+			}
+		}
+	}
+}

@@ -1,0 +1,76 @@
+{
+  "name": "gingerly-tree",
+  "displayName": "Gingerly Tree",
+  "description": "Syntax highlighting for assign-gingerly tree`…` tagged templates, in JS/TS files, HTML script tags and Markdown code blocks.",
+  "version": "0.0.1",
+  "publisher": "andersonbruceb",
+  "author": "anderson.bruce.b@gmail.com",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bahrus/gingerly-tree.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bahrus/gingerly-tree/issues"
+  },
+  "homepage": "https://github.com/bahrus/gingerly-tree#readme",
+  "keywords": [
+    "assign-gingerly",
+    "tree",
+    "tagged template",
+    "template literal",
+    "syntax highlighting",
+    "html",
+    "lit-html",
+    "web components"
+  ],
+  "engines": {
+    "vscode": "^1.30.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "grammars": [
+      {
+        "scopeName": "inline.gingerly-tree",
+        "path": "./syntaxes/gingerly-tree.tmLanguage.json",
+        "injectTo": [
+          "source.js",
+          "source.js.jsx",
+          "source.jsx",
+          "source.ts",
+          "source.tsx",
+          "text.html.basic",
+          "text.html.derivative",
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.gingerly-tree": "html",
+          "meta.embedded.line.ts": "typescript"
+        }
+      },
+      {
+        "scopeName": "inline.gingerly-tree.paths",
+        "path": "./syntaxes/gingerly-tree-paths.tmLanguage.json",
+        "injectTo": [
+          "source.js",
+          "source.js.jsx",
+          "source.jsx",
+          "source.ts",
+          "source.tsx",
+          "text.html.basic",
+          "text.html.derivative",
+          "text.html.markdown"
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "test": "node test/run.mjs"
+  },
+  "devDependencies": {
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.3.2"
+  }
+}

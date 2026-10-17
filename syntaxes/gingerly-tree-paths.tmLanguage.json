@@ -1,0 +1,31 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Gingerly Tree ?. paths",
+	"scopeName": "inline.gingerly-tree.paths",
+	"comment": "Highlights ?. path strings ('?.name', '$parent?.upcoming', '?.date?.longUtc') inside the ${…} of a tree`…` template.",
+	"injectionSelector": "L:meta.embedded.block.gingerly-tree string.quoted.single.ts, L:meta.embedded.block.gingerly-tree string.quoted.double.ts",
+	"patterns": [
+		{
+			"match": "(?<=['\"])((?:\\$(?:parent|root|\\d+))?\\?\\.[^'\"\\\\\\n]*)(?=['\"])",
+			"captures": {
+				"1": {
+					"name": "meta.path.gingerly-tree",
+					"patterns": [
+						{
+							"match": "\\$(?:parent|root|\\d+)",
+							"name": "variable.language.path-root.gingerly-tree"
+						},
+						{
+							"match": "\\?\\.",
+							"name": "punctuation.accessor.optional.path.gingerly-tree"
+						},
+						{
+							"match": "[^\\s?]+",
+							"name": "variable.other.property.path.gingerly-tree"
+						}
+					]
+				}
+			}
+		}
+	]
+}
