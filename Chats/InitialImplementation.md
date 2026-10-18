@@ -321,3 +321,24 @@ Done: [`images/icon.png`](../images/icon.png) (128 × 128, as the Marketplace an
 - **The icon appears on the Marketplace with the next published version.**
 
 **Gingerly Tree Analyzer** has no icon either. A variant of this one, say the same tree with a magnifying glass or a check mark, would make the pair recognizable. Want one?
+
+## Bruce's Response -- Icon for Gingerly Tree Analyzer
+
+Yes, please, add an icon as you describe  (magnifying glass) sounds good.
+
+## Claude's Response -- Icon for Gingerly Tree Analyzer
+
+Done: [`packages/vscode/icon.png`](../../gingerly-tree-analyzer/packages/vscode/icon.png), with `"icon": "icon.png"` in that `package.json`.
+
+**The design:**
+- **Gingerly Tree's tree,** nudged up and left.
+- **A magnifying glass** over the lower right. The lens has a green check, for "analyzed", and its rim and handle are outlined so they stand out against the tree.
+- **Side by side,** the two icons read as a pair.
+
+**Checked:** I rendered it at 128, 64, 32 and 16 px on light and dark. The lens is still clear at 32 px.
+
+**Packaging:** `scripts/package.mjs` already copies an `icon.png` from `packages/vscode/` into the staged package, so `npm run package` picks it up. I didn't run it, so your current `.vsix` is unchanged.
+
+**Also:**
+- **The source is `packages/vscode/icon.svg`.** The staged package only takes the files the script names, so the SVG doesn't ship.
+- **CHANGELOG:** the published 0.0.1 entry is now titled *0.0.1*. *Unreleased* lists the icon and `choose(…)` support.
