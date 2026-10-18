@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **An icon:** a tree of elements growing from a ginger root, with `</>` in its top node (`images/icon.png`, drawn from `images/icon.svg`).
+
+## 0.0.3
+
 - **Markdown Preview fix:** the preview sometimes stayed uncolored (about one load in three, in VS Code 1.142). The preview script loads `async`, so it could run before the preview filled in its content, and that content then arrived without a `vscode.markdown.updateContent` event. The script now also re-runs when code blocks are added.
 
 ## 0.0.2

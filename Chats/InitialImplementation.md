@@ -294,3 +294,30 @@ The new dev dependencies (`markdown-it`, `highlight.js`, `jsdom`) are only for t
 ## Bruce's Response
 
 Confirmed that preview works now.
+
+## Bruce's Response -- icon
+
+I noticed that this extension lacks an icon in marketplace and locally, just showing a generic icon.
+
+Can you please use your creativity to create an appropriate icon for this extension?
+
+## Claude's Response -- icon
+
+Done: [`images/icon.png`](../images/icon.png) (128 × 128, as the Marketplace and Open VSX want), with `"icon": "images/icon.png"` in `package.json`.
+
+**The design:**
+- **A tree of elements:** the trunk branches the way a DOM tree does, into leaf nodes.
+- **`</>` in the top node,** for the markup it highlights.
+- **A ginger root** (a knobby rhizome) the tree grows from, for *Gingerly*.
+- **The colors:** ginger and leaf green on a deep teal rounded square, so it stands out on both light and dark backgrounds.
+
+**Checked:**
+- **Small sizes:** I rendered it at 128, 64, 32 and 16 px on white and on dark. It still reads as a tree down to 32 px.
+- **Packaging:** `vsce package` (into a scratch folder) includes `images/icon.png`.
+
+**Also:**
+- **The source is [`images/icon.svg`](../images/icon.svg).** It's kept out of the package (`.vscodeignore`), since the Marketplace doesn't accept SVG icons. To change the icon, edit the SVG and render it to a 128 × 128 PNG again.
+- **CHANGELOG:** the preview fix is now under *0.0.3*, the version in `package.json`, and the icon is under *Unreleased*.
+- **The icon appears on the Marketplace with the next published version.**
+
+**Gingerly Tree Analyzer** has no icon either. A variant of this one, say the same tree with a magnifying glass or a check mark, would make the pair recognizable. Want one?

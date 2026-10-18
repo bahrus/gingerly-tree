@@ -4,6 +4,7 @@
   "description": "Syntax highlighting for assign-gingerly tree`…` tagged templates, in JS/TS files, HTML script tags, Markdown code blocks and the Markdown Preview.",
   "version": "0.0.3",
   "publisher": "andersonbruceb",
+  "icon": "images/icon.png",
   "author": "anderson.bruce.b@gmail.com",
   "license": "MIT",
   "repository": {
